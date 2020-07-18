@@ -3,11 +3,15 @@ def code_to_list(codefile):
         return [int(i) for i in reader.readlines()[0].split(",")]
 
 def run_opcode(codelist):
-    for i in range(0, len(codelist), 4):
+    i = 0
+    while i < len(codelist):
+    # for i in range(0, len(codelist), 4):
         opcode = codelist[i]
         if opcode == 99:
+            p = 1
             break
         elif opcode == 2:
+            p = 4
             try:
                 codelist[codelist[i + 3]] = codelist[codelist[i + 1]] * codelist[codelist[i + 2]]
             except:
@@ -15,6 +19,7 @@ def run_opcode(codelist):
                 break
                 return []
         elif opcode == 1:
+            p = 4
             try:
                 codelist[codelist[i + 3]] = codelist[codelist[i + 1]] + codelist[codelist[i + 2]]
             except:
@@ -23,6 +28,7 @@ def run_opcode(codelist):
                 return []
         else:
             print(f"Error, opcode {opcode} at index {i}")
+        i += p
                 
     return codelist
 
