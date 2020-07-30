@@ -209,19 +209,24 @@ def run_opcode_loop(codelist, position, inputbuffer):
 
 def optimize_amp_loop(input_file, phase_options):
     outputs = []
+    namps = len(phase_options)
     for phase in permutations(phase_options):
-        ampA, iA, a = run_opcode_loop(code_to_list(input_file),0, [phase[0], 0])
-        ampB, iB, b = run_opcode_loop(code_to_list(input_file),0, [phase[1], a[0]])
-        ampC, iC, c = run_opcode_loop(code_to_list(input_file),0, [phase[2], b[0]])
-        ampD, iD, d = run_opcode_loop(code_to_list(input_file),0, [phase[3], c[0]])
-        ampE, iE, e = run_opcode_loop(code_to_list(input_file),0, [phase[4], d[0]])
-        while ampE != 'DONE':
-            ampA, iA, a = run_opcode_loop(ampA, iA, e)
-            ampB, iB, b = run_opcode_loop(ampB, iB, a)
-            ampC, iC, c = run_opcode_loop(ampC, iC, b)
-            ampD, iD, d = run_opcode_loop(ampD, iD, c)
-            ampE, iE, e = run_opcode_loop(ampE, iE, d)
-        outputs.append(e[0])
+
+        amps = [code_to_list(input_file) for _ in range(namps)]
+        positions = [0 for _ in range(namps)]
+        signals = [[phase[i]] for i in range(namps)]
+        signals[0].append(0)
+
+        first = True
+        while amps[0] != 'DONE':
+            for j in range(namps):
+                amps[j], positions[j], signal = run_opcode_loop(amps[j], positions[j], signals[j])
+                if first:
+                    signals[(j + 1) % namps].extend(signal)
+                else:
+                    signals[(j + 1) % namps] = (signal)
+        outputs.append(signals[0][0])
+
     return max(outputs)
 print(optimize_amp_loop('test4.txt', (5,6,7,8,9)), 139629729)
 print(optimize_amp_loop('test5.txt', (5,6,7,8,9)), 18216)
